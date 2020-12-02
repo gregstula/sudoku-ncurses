@@ -1,19 +1,12 @@
-CXX=clang++
-CXXFLAGS=-Wall -std=c++17
+CXX=g++
+CXXFLAGS=-Wall -std=c++11
 LIBS=-lncurses
-GENTOO=-L/usr/lib64 -lncursesw -ltinfow -ldl
-SRC=main.cpp snake.cpp game.cpp
+SRC=main.cpp
 
 all:
-	$(CXX) $(CXXFLAGS) $(LIBS) -o qsnake $(SRC)
-gcc:
-	g++ $(CXXFLAGS) -DMESSAGE='"Compiled with GCC"' $(LIBS) -o qsnake $(SRC)
-
-gentoo:
-	g++ $(CXXFLAGS) -DMESSAGE='"Compiled for gentoo"' $(GENTOO) -o qsnake $(SRC)
-
+	$(CXX) $(CXXFLAGS) $(LIBS) -o sudoku $(SRC)
 clean:
-	@rm -f snake qsnake
+	@rm -f sudoku
 	@rm -f *.o
 format:
 	clang-format --verbose --sort-includes -i *.cpp *.hpp
