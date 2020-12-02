@@ -6,17 +6,15 @@ int main()
 {
     // cpp wrapper class around ncurses screen logic
     auto screen = curses::screen();
-    // custom template class that calls refresh on the screen when it falls out of scope
+    // custom template class the destructor calls refresh on the screen when the gaurd falls out of scope
     curses::refresh_guard<curses::screen> screen_refresh(screen);
 
-    curses::window section_1(6, 12, 0, 12);
-    curses::window section_2(6, 12, 0, 24);
-    curses::window section_3(6, 12, 0, 36);
+    curses::window section_1(40, 80, 0, 0);
     while (true)
     {
         curses::refresh_guard<curses::window> refresh1(section_1);
-        curses::refresh_guard<curses::window> refresh2(section_2);
-        curses::refresh_guard<curses::window> refresh3(section_3);
+        section_1.print_hline(6,1,12);
+        section_1.print_vline(1,12,6);
     }
     return 0;
 }

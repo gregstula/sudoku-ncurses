@@ -44,6 +44,14 @@ struct window {
         wprintw(_win, s.c_str());
     }
 
+    void print_hline(int y, int x, int length) {
+        mvwhline(_win, y, x, '_', length);
+    }
+
+    void print_vline(int y, int x, int length) {
+        mvwvline(_win, y, x, '|', length);
+    }
+
     void print_border() noexcept
     {
         wborder(_win, '|', '|', '-', '-', '+', '+', '+', '+');
