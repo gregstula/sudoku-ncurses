@@ -69,9 +69,16 @@ struct sudoku_game {
     void update();
     void render();
     bool input_valid();
+    void end_game();
     int spaces_left();
     coords convert_to_array_index(coords p);
 };
+
+
+void sudoku_game::end_game()
+{
+    is_running = false;
+}
 
 
 // runs the main game loop functions
@@ -158,6 +165,9 @@ void sudoku_game::process_input(int input)
     case KEY_DOWN:
         cursor = coords(cursor.y + cur_y, cursor.x);
         break;
+    case 'q':
+        end_game();
+        break;
     default:
         // all other input stored for validation
         inserted = input;
@@ -209,7 +219,7 @@ void sudoku_game::render()
     // print puzzle status to user
     std::stringstream ss;
     // create string with spaces left and print it
-    ss << "Spaces left: " << spaces_left();
+    ss << "Spaces left: " << spaces_left() << " | Press 'q' to quit";
     main_win.print_at_coords(window_height + window_start, window_start, ss.str());
 
     // move cursor to correct position
