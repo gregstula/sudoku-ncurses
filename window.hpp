@@ -7,14 +7,19 @@
 
 namespace curses {
 struct window {
+    // constructor
     window(int height, int width, int startx, int starty) noexcept
     {
         _win = newwin(height, width, startx, starty);
+        // set cursor to visible
         curs_set(2);
     }
 
+    // default constructor
     window() noexcept { _win = nullptr; }
 
+    // destructor
+    // deletes window pointer
     ~window() noexcept
     {
         wclear(_win);
@@ -22,6 +27,8 @@ struct window {
         delwin(_win);
     }
 
+    // passthrough functions to ncurses api
+    // not all were used
     void clear() noexcept { werase(_win); }
 
     void clear_from_cursor_to_bottom() noexcept { wclrtobot(_win); }
@@ -30,6 +37,8 @@ struct window {
 
     void refresh() noexcept { wrefresh(_win); }
 
+    // prints string at coords
+    // boolean for highlighting printed string
     template <class S>
     void print_at_coords(int y, int x, S&& str, bool attr = false)
     {
@@ -39,6 +48,7 @@ struct window {
         if (attr) wattroff(_win, A_STANDOUT);
     }
 
+    // prints string at cursor, not used in sudoku
     template <class S>
     void print_at_cursor(S&& str, bool attr = false)
     {
@@ -48,22 +58,27 @@ struct window {
         if (attr) wattroff(_win, A_STANDOUT);
     }
 
-    void move_cursor(int y, int x) {
+    // moves cursor to position
+    void move_cursor(int y, int x)
+    {
         wmove(_win, y, x);
     }
 
     // gets value under the cursor
-    char peek() {
+    char peek()
+    {
         return winch(_win);
     }
 
     // prints horizontal line
-    void print_hline(int y, int x, int length) {
+    void print_hline(int y, int x, int length)
+    {
         mvwhline(_win, y, x, '_', length);
     }
 
     // prints vertical line
-    void print_vline(int y, int x, int length) {
+    void print_vline(int y, int x, int length)
+    {
         mvwvline(_win, y, x, '|', length);
     }
 
@@ -72,6 +87,7 @@ struct window {
         wborder(_win, '|', '|', '-', '-', '+', '+', '+', '+');
     }
 
+// ncurses window pointer
 private:
     WINDOW* _win;
 };

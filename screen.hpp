@@ -2,14 +2,15 @@
 
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <ncurses.h>
 #include <string>
-#include <memory>
 
 namespace curses {
 
-// Attatch a window to this class to use
+// Attatch a window to this template class to use
 // RAII to refresh an ncurses screen automatically when it falls out of scopt
+// also redraws the window border
 template <class S>
 struct refresh_guard {
     typedef S screen_type;
@@ -30,6 +31,7 @@ private:
 
 class screen {
 public:
+    // constructor, initialized ncurses with needed settings
     screen() noexcept
     {
         // ncurses settings
@@ -44,14 +46,19 @@ public:
         typeahead(-1);
     }
 
+    // destructor
     ~screen() noexcept
     {
         clear();
         endwin();
     }
 
+    // gets char
+    // window variant is used
     auto get_key() -> int { return getch(); }
 
+    // prints on the screen as opposed to a window
+    // not used
     template <typename S>
     void print_at_coords(int y, int x, S&& str)
     {
@@ -59,6 +66,8 @@ public:
         mvprintw(y, x, s.c_str());
     }
 
+    // prints on the screen as opposed to the window
+    // not used
     template <typename S>
     void print_at_cursor(S&& str)
     {
@@ -66,8 +75,11 @@ public:
         printw(s.c_str());
     }
 
+    // dummy function, does nothing. for template
     void print_border() noexcept {}
+    // clears the screen
     void clear() noexcept { ::clear(); }
+    // refreshes the screen
     void refresh() noexcept { ::refresh(); }
 
 private:

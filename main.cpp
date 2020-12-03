@@ -1,7 +1,7 @@
 // classes I wrote to wrap the relevant parts of ncurses in a C++ API
 #include "screen.hpp"
-#include "window.hpp"
 #include "sudoku_game.hpp"
+#include "window.hpp"
 
 int main()
 {
@@ -11,6 +11,5 @@ int main()
     curses::refresh_guard<curses::screen> screen_refresh(screen);
     auto game = sudoku_game();
     game.game_loop();
-   return 0;
+    return 0;
 }
-
