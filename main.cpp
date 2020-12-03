@@ -10,7 +10,7 @@ int main()
     // custom template class the destructor calls refresh on the screen when the gaurd falls out of scope
     curses::refresh_guard<curses::screen> screen_refresh(screen);
     auto game = sudoku_game();
-    game.render();
+    game.game_loop();
    return 0;
 }
 
