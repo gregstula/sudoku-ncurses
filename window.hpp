@@ -31,17 +31,21 @@ struct window {
     void refresh() noexcept { wrefresh(_win); }
 
     template <class S>
-    void print_at_coords(int y, int x, S&& str)
+    void print_at_coords(int y, int x, S&& str, bool attr = false)
     {
+        if (attr) wattron(_win, A_STANDOUT);
         std::string s { std::forward<S>(str) };
         mvwprintw(_win, y, x, s.c_str());
+        if (attr) wattroff(_win, A_STANDOUT);
     }
 
     template <class S>
-    void print_at_cursor(S&& str)
+    void print_at_cursor(S&& str, bool attr = false)
     {
+        if (attr) wattron(_win, A_STANDOUT);
         std::string s { std::forward<S>(str) };
         wprintw(_win, s.c_str());
+        if (attr) wattroff(_win, A_STANDOUT);
     }
 
     void move_cursor(int y, int x) {
