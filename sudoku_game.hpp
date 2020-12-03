@@ -11,6 +11,15 @@ constexpr int vline_starty = 1;
 constexpr int vline_startx = 12;
 constexpr int vline_length = 6;
 
+// window dimensions
+constexpr int window_start = 1;
+constexpr int window_height = (vline_length * 3) + window_start;
+constexpr int window_width = (hline_length * 3) + window_start;
+
+// cursor movement offsets
+constexpr int cur_x = 4;
+constexpr int cur_y = 2;
+
 struct position {
     position(int y, int x) : y(y), x(x) {};
     int y, x;
@@ -30,14 +39,15 @@ struct sudoku_game {
         {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
     };
 
-    curses::window main_win = curses::window((vline_length * 3) + 1, (hline_length * 3) + 1,0,0);
+    curses::window main_win = curses::window(window_height, window_width,0,0);
     bool is_running = true;
 
     position cursor = position(1,1);
 
-    void render();
     void game_loop();
     void process_input(int input);
+    void update();
+    void render();
 
 };
 
@@ -45,24 +55,45 @@ void sudoku_game::game_loop()
 {
     while (is_running) {
         process_input(getch());
+        update();
         render();
     }
 
 }
 
+void sudoku_game::update()
+{
+    // loop cursor around the window borders
+    if (cursor.x >= window_width) {
+        cursor = position(cursor.y, window_start);
+    }
+    else if (cursor.x < window_start) {
+        cursor = position(cursor.y, window_width - cur_x);
+    }
+    else if (cursor.y >= window_height) {
+        cursor = position(window_start, cursor.x);
+    }
+    else if (cursor.y < window_start) {
+        cursor = position(window_height - cur_y, cursor.x);
+    }
+
+}
+
+// process input from keyboard
 void sudoku_game::process_input(int input) {
     switch(input) {
+        // handle directional input, update cursor coords for rendering
         case KEY_UP:
-            cursor = position(cursor.y - 2, cursor.x);
+            cursor = position(cursor.y - cur_y, cursor.x);
             break;
         case KEY_RIGHT:
-            cursor = position(cursor.y, cursor.x + 4);
+            cursor = position(cursor.y, cursor.x + cur_x);
             break;
         case KEY_LEFT:
-            cursor = position(cursor.y, cursor.x - 4);
+            cursor = position(cursor.y, cursor.x - cur_x);
             break;
         case KEY_DOWN:
-            cursor = position(cursor.y + 2, cursor.x);
+            cursor = position(cursor.y + cur_y, cursor.x);
             break;
         default:
             break;
@@ -97,7 +128,7 @@ void sudoku_game::render()
     // print numbers
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
-            main_win.print_at_coords((j * 2) + 1, (i * 4) + 1, std::string(1,numbers[i][j]));
+            main_win.print_at_coords((j * cur_y) + window_start, (i * cur_x) + window_start, std::string(1,numbers[i][j]));
         }
     }
     main_win.move_cursor(cursor.y, cursor.x);
