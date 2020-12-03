@@ -27,30 +27,37 @@ struct position {
 
 struct sudoku_game {
 
-    char numbers[9][9] = {
-        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-    };
+    std::array<std::array<char,9>, 9> numbers = {{
 
+        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
+        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
+        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
+        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
+        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
+        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
+        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
+        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
+        {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
+    }};
+
+    char peeked = '.';
+    int inserted = '.';
     curses::window main_win = curses::window(window_height, window_width,0,0);
     bool is_running = true;
 
     position cursor = position(1,1);
 
+    // game loop methods
     void game_loop();
     void process_input(int input);
     void update();
     void render();
+    bool input_valid();
+    position convert_to_array_index(position p);
 
 };
 
+// runs the main game loop functions
 void sudoku_game::game_loop()
 {
     while (is_running) {
@@ -59,6 +66,24 @@ void sudoku_game::game_loop()
         render();
     }
 
+}
+
+// checks if the input acceptable
+bool sudoku_game::input_valid()
+{
+    // convert char to be inserted into an int
+    // and check that it is in the range 1 - 9
+    int attempt = inserted - '0';
+    if (attempt > 0 && attempt <= 9) {
+       return true;
+    }
+    return false;
+}
+
+// convert the render coordinated back to array coordinates
+position sudoku_game::convert_to_array_index(position p)
+{
+    return position ((p.y - window_start)/cur_y, (p.x - window_start)/cur_x);
 }
 
 void sudoku_game::update()
@@ -77,6 +102,14 @@ void sudoku_game::update()
         cursor = position(window_height - cur_y, cursor.x);
     }
 
+    // get character under the cursor
+    peeked = main_win.peek();
+    if (input_valid()) {
+        // convert current cursor position to the relevant array index
+        auto array_pos = convert_to_array_index(cursor);
+        // insert the valid char in the array
+        numbers[array_pos.x][array_pos.y] = inserted;
+    }
 }
 
 // process input from keyboard
@@ -96,6 +129,7 @@ void sudoku_game::process_input(int input) {
             cursor = position(cursor.y + cur_y, cursor.x);
             break;
         default:
+            inserted = input;
             break;
     }
 }
