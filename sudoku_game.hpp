@@ -1,6 +1,9 @@
 #include "window.hpp"
 #include <ncurses.h>
+#include <algorithm>
 #include <string>
+#include <sstream>
+
 // initial drawing coordinates and dimensions for lines
 constexpr int hline_starty = 6;
 constexpr int hlline_startx = 1;
@@ -47,10 +50,13 @@ struct sudoku_game {
 
     // value read under cursor
     char peeked = '.';
+
     // value to be inserted at cursor
     int inserted = '.';
+
     // main ncurses window
-    curses::window main_win = curses::window(window_height, window_width, 0, 0);
+    curses::window main_win = curses::window(window_height + 4, window_width, 0, 0, 1);
+
     // game is running
     bool is_running = true;
 
@@ -63,8 +69,10 @@ struct sudoku_game {
     void update();
     void render();
     bool input_valid();
+    int spaces_left();
     coords convert_to_array_index(coords p);
 };
+
 
 // runs the main game loop functions
 void sudoku_game::game_loop()
@@ -74,6 +82,16 @@ void sudoku_game::game_loop()
         update();
         render();
     }
+}
+
+// counts how many empty spaces are left
+int sudoku_game::spaces_left()
+{
+    int count = 0;
+    for (auto&& a : game_puzzle) {
+        count += std::count_if(a.begin(), a.end(), [&](char& i) { return (i == '.'); });
+    }
+    return count;
 }
 
 // checks if the input acceptable
@@ -188,6 +206,12 @@ void sudoku_game::render()
             }
         }
     }
+    // print puzzle status to user
+    std::stringstream ss;
+    // create string with spaces left and print it
+    ss << "Spaces left: " << spaces_left();
+    main_win.print_at_coords(window_height + window_start, window_start, ss.str());
+
     // move cursor to correct position
     main_win.move_cursor(cursor.y, cursor.x);
 }

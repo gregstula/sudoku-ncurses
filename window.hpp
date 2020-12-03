@@ -8,11 +8,15 @@
 namespace curses {
 struct window {
     // constructor
-    window(int height, int width, int startx, int starty) noexcept
+    window(int height, int width, int startx, int starty, int cursor_setting = 0) noexcept
     {
         _win = newwin(height, width, startx, starty);
-        // set cursor to visible
-        curs_set(2);
+        // set cursor to visible, invisible, or super visible
+        if (cursor_setting >= 0 && cursor_setting <= 2) {
+            curs_set(cursor_setting);
+        } else {
+            curs_set(0);
+        }
     }
 
     // default constructor
