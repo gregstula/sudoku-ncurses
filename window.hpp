@@ -10,7 +10,7 @@ struct window {
     window(int height, int width, int startx, int starty) noexcept
     {
         _win = newwin(height, width, startx, starty);
-        curs_set(0);
+        curs_set(2);
     }
 
     window() noexcept { _win = nullptr; }
@@ -44,10 +44,21 @@ struct window {
         wprintw(_win, s.c_str());
     }
 
+    void move_cursor(int y, int x) {
+        wmove(_win, y, x);
+    }
+
+    // gets value under the cursor
+    char peek() {
+        return winch(_win);
+    }
+
+    // prints horizontal line
     void print_hline(int y, int x, int length) {
         mvwhline(_win, y, x, '_', length);
     }
 
+    // prints vertical line
     void print_vline(int y, int x, int length) {
         mvwvline(_win, y, x, '|', length);
     }

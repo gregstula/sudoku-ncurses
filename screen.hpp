@@ -32,6 +32,7 @@ class screen {
 public:
     screen() noexcept
     {
+        // ncurses settings
         setlocale(LC_ALL, "en_US.UTF-8");
         initscr();
         cbreak();
@@ -39,7 +40,7 @@ public:
         keypad(stdscr, TRUE);
         meta(stdscr, TRUE);
         nodelay(stdscr, TRUE); // let getch pass through
-        curs_set(0);
+        curs_set(1);
         typeahead(-1);
     }
 
