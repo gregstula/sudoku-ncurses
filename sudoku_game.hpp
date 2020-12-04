@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <unordered_set>
+#include <iostream>
 
 // initial drawing coordinates and dimensions for lines
 constexpr int hline_starty = 6;
@@ -80,75 +81,15 @@ private:
     bool row_is_valid(int row);
     bool grid_is_valid(int start_row, int start_col);
     bool board_is_valid();
+
+    // generate solution
+    bool row_legal(int row, char val);
+    bool col_legal(int col, char val);
+    bool grid_legal(int start_row, int start_col, char val);
+    bool is_legal(int row, int col, char val);
+    bool find_editable_location(int& row, int& col);
+    bool generate_solution();
 };
-
-// checks if given column is valid
-bool sudoku_game::col_is_valid(int col)
-{
-    std::unordered_set<char> unique;
-    for (int i = 0; i < 9; i++) {
-        // all the values in a set are unique if insetion fails
-        // we have dupliucate values in the column
-        // and the soduku solution is invalid
-        if (!unique.insert(game_puzzle[i][col]).second) {
-            return false;
-        }
-   }
-   return true;
-}
-
-// checks if given row is valid
-bool sudoku_game::row_is_valid(int row)
-{
-    std::unordered_set<char> unique;
-    for (int i = 0; i < 9; i++) {
-        // all the values in a set are unique, so if insetion fails
-        // we have dupliucate values in the row
-        // and the soduku solution is invalid
-        if (!unique.insert(game_puzzle[row][i]).second) {
-            return false;
-        }
-   }
-   return true;
-}
-
-// checks if 3x3 grid is valid
-bool sudoku_game::grid_is_valid(int start_row, int start_col)
-{
-    std::unordered_set<char> unique;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            // all the values in a set are unique, so if insetion fails
-            // we have dupliucate values in the column
-            // and the soduku solution is grid
-            if (!unique.insert(game_puzzle[start_row + i][start_row + j]).second) {
-                return false;
-            }
-
-        }
-    }
-    return true;
-}
-
-bool sudoku_game::board_is_valid()
-{
-    // if row or column is not valid then board is invalid
-    for (int i = 0; i < 9; i++) {
-        if (!row_is_valid(i) && !col_is_valid(i)) {
-            return false;
-        }
-        // check 3x3 grid at multiples of 3
-        // if grid is invalid then the board is invalid
-        if (i % 3 == 0) {
-            for (int j = 0; j <= 6; j += 3) {
-                if (!grid_is_valid(i, j)) {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
 
 
 void sudoku_game::end_game()
@@ -162,7 +103,7 @@ void sudoku_game::game_loop()
 {
     while (is_running) {
         process_input(getch());
-        update();
+        //update();
         render();
     }
 }
@@ -244,6 +185,9 @@ void sudoku_game::process_input(int input)
     case 'q':
         end_game();
         break;
+    case 's':
+        generate_solution();
+        break;
     default:
         // all other input stored for validation
         inserted = input;
@@ -310,3 +254,148 @@ void sudoku_game::render()
     // move cursor to correct position
     main_win.move_cursor(cursor.y, cursor.x);
 }
+
+
+// checks if value can be legally inserted to row
+// returns false if move is illegal
+bool sudoku_game::row_legal(int row, char val) {
+    for (int i = 0; i < 9; i++) {
+        if (game_puzzle[row][i] == val) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+// checks if value can be legally inserted to col
+// returns false if move is illegal
+bool sudoku_game::col_legal(int col, char val) {
+    for (int i = 0; i < 9; i++) {
+        if (game_puzzle[i][col] == val) {
+            return false;
+        }
+    }
+    return true;
+
+}
+
+
+// checks if value can be inserted in to 3x3 grid
+// returns false if move is illegal
+bool sudoku_game::grid_legal(int start_row, int start_col, char val) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (game_puzzle[start_row + i][start_col + j] == val) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool sudoku_game::is_legal(int row, int col, char val) {
+    return row_legal(row, val) && col_legal(col, val) && grid_legal( row - row % 3, col - col % 3, val) && game_puzzle[row][col] == '.';
+}
+
+
+bool sudoku_game::find_editable_location(int& row, int& col) {
+    for (row = 0; row < 9; row++) {
+        for (col = 0; col < 9; col++) {
+            if (game_puzzle[row][col] == '.') {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+// recursive backtracking algorithm that brute forces the solution
+bool sudoku_game::generate_solution() {
+
+    int row, col;
+    if (!find_editable_location(row, col)) return true;
+
+    // genrate chars 1-9 to test
+    for (char val = '1'; val <= '9'; val++) {
+        if (is_legal(row, col, val)) {
+            game_puzzle[row][col] = val;
+            if(generate_solution()) {
+                return true;
+            }
+            game_puzzle[row][col] = '.';
+        }
+    }
+    return false;
+}
+
+// checks if given column is valid
+bool sudoku_game::col_is_valid(int col)
+{
+    std::unordered_set<char> unique;
+    for (int i = 0; i < 9; i++) {
+        // all the values in a set are unique if insetion fails
+        // we have dupliucate values in the column
+        // and the soduku solution is invalid
+        if (!unique.insert(game_puzzle[i][col]).second) {
+            return false;
+        }
+   }
+   return true;
+}
+
+// checks if given row is valid
+bool sudoku_game::row_is_valid(int row)
+{
+    std::unordered_set<char> unique;
+    for (int i = 0; i < 9; i++) {
+        // all the values in a set are unique, so if insetion fails
+        // we have dupliucate values in the row
+        // and the soduku solution is invalid
+        if (!unique.insert(game_puzzle[row][i]).second) {
+            return false;
+        }
+   }
+   return true;
+}
+
+// checks if 3x3 grid is valid
+bool sudoku_game::grid_is_valid(int start_row, int start_col)
+{
+    std::unordered_set<char> unique;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            // all the values in a set are unique, so if insetion fails
+            // we have dupliucate values in the column
+            // and the soduku solution is grid
+            if (!unique.insert(game_puzzle[start_row + i][start_col + j]).second) {
+                return false;
+            }
+
+        }
+    }
+    return true;
+}
+
+bool sudoku_game::board_is_valid()
+{
+    // if row or column is not valid then board is invalid
+    for (int i = 0; i < 9; i++) {
+        if (!row_is_valid(i) && !col_is_valid(i)) {
+            return false;
+        }
+        // check 3x3 grid at multiples of 3
+        // if grid is invalid then the board is invalid
+        if (i % 3 == 0) {
+            for (int j = 0; j <= 6; j += 3) {
+                if (!grid_is_valid(i, j)) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+
