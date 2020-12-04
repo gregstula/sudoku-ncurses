@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <string>
 #include <sstream>
+#include <unordered_set>
 
 // initial drawing coordinates and dimensions for lines
 constexpr int hline_starty = 6;
@@ -30,6 +31,8 @@ struct coords {
 
 struct sudoku_game {
 
+    void game_loop();
+private:
     // original puzzle, hard coded
     // awkward syntax to work on flip g++ for C++11
     std::array<std::array<char, 9>, 9> puzzle = { {
@@ -64,7 +67,6 @@ struct sudoku_game {
     coords cursor = coords(1, 1);
 
     // game loop methods
-    void game_loop();
     void process_input(int input);
     void update();
     void render();
@@ -72,7 +74,81 @@ struct sudoku_game {
     void end_game();
     int spaces_left();
     coords convert_to_array_index(coords p);
+
+    // validate solution
+    bool col_is_valid(int col);
+    bool row_is_valid(int row);
+    bool grid_is_valid(int start_row, int start_col);
+    bool board_is_valid();
 };
+
+// checks if given column is valid
+bool sudoku_game::col_is_valid(int col)
+{
+    std::unordered_set<char> unique;
+    for (int i = 0; i < 9; i++) {
+        // all the values in a set are unique if insetion fails
+        // we have dupliucate values in the column
+        // and the soduku solution is invalid
+        if (!unique.insert(game_puzzle[i][col]).second) {
+            return false;
+        }
+   }
+   return true;
+}
+
+// checks if given row is valid
+bool sudoku_game::row_is_valid(int row)
+{
+    std::unordered_set<char> unique;
+    for (int i = 0; i < 9; i++) {
+        // all the values in a set are unique, so if insetion fails
+        // we have dupliucate values in the row
+        // and the soduku solution is invalid
+        if (!unique.insert(game_puzzle[row][i]).second) {
+            return false;
+        }
+   }
+   return true;
+}
+
+// checks if 3x3 grid is valid
+bool sudoku_game::grid_is_valid(int start_row, int start_col)
+{
+    std::unordered_set<char> unique;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            // all the values in a set are unique, so if insetion fails
+            // we have dupliucate values in the column
+            // and the soduku solution is grid
+            if (!unique.insert(game_puzzle[start_row + i][start_row + j]).second) {
+                return false;
+            }
+
+        }
+    }
+    return true;
+}
+
+bool sudoku_game::board_is_valid()
+{
+    // if row or column is not valid then board is invalid
+    for (int i = 0; i < 9; i++) {
+        if (!row_is_valid(i) && !col_is_valid(i)) {
+            return false;
+        }
+        // check 3x3 grid at multiples of 3
+        // if grid is invalid then the board is invalid
+        if (i % 3 == 0) {
+            for (int j = 0; j <= 6; j += 3) {
+                if (!grid_is_valid(i, j)) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
 
 
 void sudoku_game::end_game()
@@ -140,11 +216,11 @@ void sudoku_game::update()
     // convert current cursor coords to the relevant array index
     auto array_pos = convert_to_array_index(cursor);
     // check if this was an editable section in the original puzzle
-    if (puzzle[array_pos.x][array_pos.y] == '.' && input_valid()) {
+    if (puzzle[array_pos.y][array_pos.x] == '.' && input_valid()) {
        // insert the valid char in the game_array
         // we maintain the original puzzle array for tracking
         // which characters were inserted vs originally listed as clues
-        game_puzzle[array_pos.x][array_pos.y] = inserted;
+        game_puzzle[array_pos.y][array_pos.x] = inserted;
     }
 }
 
@@ -207,19 +283,28 @@ void sudoku_game::render()
             if (puzzle[i][j] == '.') {
                 // if the character is editable print it from the game board non-highlighted
                 // this is so the user knows which numbers are their inputs vs puzzle clues
-                main_win.print_at_coords((j * cur_y) + window_start, (i * cur_x) + window_start, std::string(1, game_puzzle[i][j]));
+                main_win.print_at_coords((i * cur_y) + window_start, (j * cur_x) + window_start, std::string(1, game_puzzle[i][j]));
             }
             else {
                 // otherwise print the clues as regular test
                 // regular clues are printed highlighted so they can be differentiated by the user
-                main_win.print_at_coords((j * cur_y) + window_start, (i * cur_x) + window_start, std::string(1, puzzle[i][j]), true);
+                main_win.print_at_coords((i * cur_y) + window_start, (j * cur_x) + window_start, std::string(1, puzzle[i][j]), true);
             }
         }
     }
     // print puzzle status to user
     std::stringstream ss;
     // create string with spaces left and print it
-    ss << "Spaces left: " << spaces_left() << " | Press 'q' to quit";
+    ss << "Spaces left: " << spaces_left();
+    if (spaces_left() != 0) {
+        ss << " | Unsolved.";
+    } else {
+        if (board_is_valid()) {
+            ss << " | SOLVED!";
+        } else {
+            ss << " | INVALID!";
+        }
+    }
     main_win.print_at_coords(window_height + window_start, window_start, ss.str());
 
     // move cursor to correct position
