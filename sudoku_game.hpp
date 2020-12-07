@@ -103,7 +103,7 @@ void sudoku_game::game_loop()
 {
     while (is_running) {
         process_input(getch());
-        //update();
+        update();
         render();
     }
 }
@@ -182,10 +182,15 @@ void sudoku_game::process_input(int input)
     case KEY_DOWN:
         cursor = coords(cursor.y + cur_y, cursor.x);
         break;
+    // quit game on q press
     case 'q':
         end_game();
         break;
+    // solve game on s press
     case 's':
+        // reset game puzzle
+        game_puzzle = puzzle;
+        // solve
         generate_solution();
         break;
     default:
@@ -294,11 +299,14 @@ bool sudoku_game::grid_legal(int start_row, int start_col, char val) {
     return true;
 }
 
+// utility function that checks if move is legal for  rows cols and 3x3 grids
 bool sudoku_game::is_legal(int row, int col, char val) {
     return row_legal(row, val) && col_legal(col, val) && grid_legal( row - row % 3, col - col % 3, val) && game_puzzle[row][col] == '.';
 }
 
 
+// takes two integers by reference and returns the coord
+// of the next editable char and returns true if found, false otherwise
 bool sudoku_game::find_editable_location(int& row, int& col) {
     for (row = 0; row < 9; row++) {
         for (col = 0; col < 9; col++) {
@@ -314,16 +322,21 @@ bool sudoku_game::find_editable_location(int& row, int& col) {
 // recursive backtracking algorithm that brute forces the solution
 bool sudoku_game::generate_solution() {
 
+    // find editable location coords by reference
     int row, col;
+    // game is solved if all positions are filled
     if (!find_editable_location(row, col)) return true;
 
     // genrate chars 1-9 to test
     for (char val = '1'; val <= '9'; val++) {
+        // try num in position if move is legal
         if (is_legal(row, col, val)) {
             game_puzzle[row][col] = val;
+            // check if solved
             if(generate_solution()) {
                 return true;
             }
+            // reset to retry if move didn't work
             game_puzzle[row][col] = '.';
         }
     }
