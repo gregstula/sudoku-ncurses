@@ -1,8 +1,8 @@
 # CS 325 Fall 2020
 ##Gregroy D. Stula
-##Final Project
+##Portfolio Project
 
-**Final Project**
+**Portfolio Project**
 The project was tested on the flip engr server.
 The project's GUI requires the ncurses library, which exists on the engr server. Linking is handled in the make file.
 
@@ -14,6 +14,8 @@ Then run the executable by typing `./sudoku`
 The project consists of 3 header files and a main.cpp file.
 The first 2 header files are screen.hpp and window.hpp.
 These header files abstract away some of ncurses C API and wrap them in a more C++ friendly interface.
+The third headerfile is sudoku_game.hpp and it contains the game logic and class definitions.
+The main.cpp file simply includes the header files and instatiates and instance of sudoku and runs the gameloop.
 
 **Game Controls**
 - Press the 'q' key at anytime to quit
