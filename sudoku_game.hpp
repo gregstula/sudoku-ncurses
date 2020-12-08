@@ -309,7 +309,7 @@ bool sudoku_game::is_legal(int row, int col, char val) {
 }
 
 
-// takes two integers by reference and returns the coord
+// takes two integers by reference and returns the coordinates
 // of the next editable char and returns true if found, false otherwise
 bool sudoku_game::find_editable_location(int& row, int& col) {
     for (row = 0; row < 9; row++) {
@@ -352,9 +352,9 @@ bool sudoku_game::col_is_valid(int col)
 {
     std::unordered_set<char> unique;
     for (int i = 0; i < 9; i++) {
-        // all the values in a set are unique if insetion fails
-        // we have dupliucate values in the column
-        // and the soduku solution is invalid
+        // all the values in a set are unique if insertion fails
+        // we have duplicate values in the column
+        // and the sudoku solution is invalid
         if (!unique.insert(game_puzzle[i][col]).second) {
             return false;
         }
@@ -367,9 +367,9 @@ bool sudoku_game::row_is_valid(int row)
 {
     std::unordered_set<char> unique;
     for (int i = 0; i < 9; i++) {
-        // all the values in a set are unique, so if insetion fails
-        // we have dupliucate values in the row
-        // and the soduku solution is invalid
+        // all the values in a set are unique, so if insertion fails
+        // we have duplicate values in the row
+        // and the sudoku solution is invalid
         if (!unique.insert(game_puzzle[row][i]).second) {
             return false;
         }
@@ -383,9 +383,9 @@ bool sudoku_game::grid_is_valid(int start_row, int start_col)
     std::unordered_set<char> unique;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            // all the values in a set are unique, so if insetion fails
-            // we have dupliucate values in the column
-            // and the soduku solution is grid
+            // all the values in a set are unique, so if insertion fails
+            // we have duplicate values in the column
+            // and the sudoku solution is grid
             if (!unique.insert(game_puzzle[start_row + i][start_col + j]).second) {
                 return false;
             }
