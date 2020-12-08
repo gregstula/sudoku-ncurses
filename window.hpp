@@ -1,3 +1,6 @@
+// Gregory D. Stula
+// CS325 Fall 2020
+// Portfolio Project
 #pragma once
 #include <ncurses.h>
 

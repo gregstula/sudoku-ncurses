@@ -1,3 +1,7 @@
+//Gregory D. Stula
+// CS 325 Fall 2020
+// Portfolio Project
+
 // classes I wrote to wrap the relevant parts of ncurses in a C++ API
 #include "screen.hpp"
 #include "sudoku_game.hpp"

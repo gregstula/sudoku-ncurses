@@ -1,3 +1,7 @@
+// Gregory D Stula
+// CS 325 Fall 2020
+// Portfolio Project
+#pragma once
 #include "window.hpp"
 #include <ncurses.h>
 #include <algorithm>
@@ -91,7 +95,7 @@ private:
     bool generate_solution();
 };
 
-
+// flips game loop bool to quit the game
 void sudoku_game::end_game()
 {
     is_running = false;
@@ -391,6 +395,7 @@ bool sudoku_game::grid_is_valid(int start_row, int start_col)
     return true;
 }
 
+// checks if all cols, rows, and subgrids are valid
 bool sudoku_game::board_is_valid()
 {
     // if row or column is not valid then board is invalid

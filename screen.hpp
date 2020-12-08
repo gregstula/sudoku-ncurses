@@ -1,5 +1,7 @@
+// Gregory D. Stula
+// CS 325 Fall 2020
+// Portfolio Project
 #pragma once
-
 #include <functional>
 #include <iostream>
 #include <memory>
