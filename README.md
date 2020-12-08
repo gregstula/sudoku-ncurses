@@ -3,7 +3,7 @@
 ##Portfolio Project
 
 **Portfolio Project**
-The project was tested on the flip engr server.
+The project is for Linux and was tested on the flip engr server.
 The project's GUI requires the ncurses library, which exists on the engr server. Linking is handled in the make file.
 
 **Compilation Instructions**
