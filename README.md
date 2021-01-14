@@ -1,11 +1,3 @@
-# CS 325 Fall 2020
-##Gregroy D. Stula
-##Portfolio Project
-
-**Portfolio Project**
-The project is for Linux and was tested on the flip engr server.
-The project's GUI requires the ncurses library, which exists on the engr server. Linking is handled in the make file.
-
 **Compilation Instructions**
 To compile simply type `make` and allow g++ to compile with `g++ -std=c+11 -lncurses`.
 Then run the executable by typing `./sudoku`
